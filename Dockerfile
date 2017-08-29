@@ -1,4 +1,4 @@
-FROM phusion/baseimage:0.9.17
+FROM phusion/baseimage:0.9.22
 
 # Default configuration: can be overridden at the docker command line
 ENV DEBIAN_FRONTEND=noninteractive \
@@ -15,7 +15,8 @@ VOLUME /var/lib/ldap
 
 RUN apt-get -y update && \
     rm -rf /etc/service/sshd /etc/my_init.d/00_regen_ssh_host_keys.sh && \
-    apt-get install -yq slapd && \
+    apt-get install -yq slapd ldap-utils && \
+    apt-get upgrade -yq && \
     mkdir -p /etc/service/slapd/supervise && \
     mkdir -p /var/lib/ldap/backups && \
     chown openldap:openldap /var/lib/ldap/backups && \
