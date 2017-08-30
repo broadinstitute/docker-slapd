@@ -1,6 +1,10 @@
 #!/bin/sh
 
+# file to hold env var settings
+ENV_FILE="/etc/ldap/ldap.env"
+# directory to hold bootstrap ldif files
 BOOTSTRAP_DIR="/etc/ldap/bootstrap"
+# file where slapd writes its PID
 PID_FILE="/var/run/slapd/slapd.pid"
 
 set -eu
@@ -9,11 +13,21 @@ status () {
   echo "---> ${@}" >&2
 }
 
-set -x
-: LDAP_DEBUGLEVEL=${LDAP_DEBUGLEVEL}
-: LDAP_DOMAIN=${LDAP_DOMAIN}
-: LDAP_ORGANIZATION=${LDAP_ORGANIZATION}
-: LDAP_ROOTPASS=${LDAP_ROOTPASS}
+# if env var file exists dot it
+if [ -f "${ENV_FILE}" ]
+then
+   echo "Processing environment file: (${ENV_FILE})..."
+   . "${ENV_FILE}"
+fi
+
+# if debug level is non-zero output more details
+if [ "${LDAP_DEBUGLEVEL}" -ne 0 ]
+then
+  set -x
+  echo "LDAP_DEBUGLEVEL=${LDAP_DEBUGLEVEL}"
+  echo "LDAP_DOMAIN=${LDAP_DOMAIN}"
+  echo "LDAP_ORGANIZATION=${LDAP_ORGANIZATION}"
+fi
 
 if [ ! -e /var/lib/ldap/docker_bootstrapped ]; then
   status "configuring slapd for first run"
